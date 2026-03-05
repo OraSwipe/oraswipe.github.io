@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OraSwipe - Professional iOS Photo Cleaner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); color: #1e293b; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+        .feature-card { transition: all 0.3s ease; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .app-icon { box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15); border-radius: 22%; }
+        .gradient-text { background: linear-gradient(90deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* 手机模型与动画样式 */
+        .iphone-x { width: 260px; height: 520px; border: 8px solid #1f2937; border-radius: 40px; position: relative; background: #fff; overflow: hidden; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.15); }
+        .iphone-screen { padding: 20px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, #f8fafc 0%, #e0f2fe 100%); }
+        .storage-bar { width: 100%; height: 12px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin: 20px 0; }
+        .storage-progress { height: 100%; background: #3b82f6; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); width: 90%; }
+        .freed-badge { background: #22c55e; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.5s ease; }
+        
+        .animating .storage-progress { width: 45%; }
+        .animating .freed-badge { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="fixed top-0 w-full z-50 glass px-6 py-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold tracking-tight text-blue-600">OraSwipe</div>
+            <button onclick="toggleLang()" id="langBtn" class="bg-blue-600 text-white px-5 py-1.5 rounded-full text-sm font-bold hover:bg-blue-700 transition">中文</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <section class="pt-48 pb-20 px-6">
+            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-16">
+                
+                <div class="flex-1 flex justify-center order-2 lg:order-1">
+                    <div class="iphone-x" id="phoneBox">
+                        <div class="iphone-screen">
+                            <img src="1024.jpg" class="w-16 h-16 rounded-xl mb-4 shadow-sm">
+                            <div class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">iPhone Storage</div>
+                            <div id="storageVal" class="text-4xl font-bold text-gray-900 mt-2">124 GB</div>
+                            <div class="storage-bar"><div id="progress" class="storage-progress"></div></div>
+                            <div id="freedText" class="freed-badge">🎉 +42GB FREED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 text-center lg:text-left order-1 lg:order-2">
+                    <div class="text-blue-600 font-semibold tracking-widest uppercase mb-2 text-sm">Introducing</div>
+                    <h1 class="text-6xl md:text-8xl font-extrabold text-gray-900 mb-4 tracking-tight">OraSwipe</h1>
+                    <h2 id="heroTitle" class="text-3xl md:text-5xl font-bold mb-8 tracking-tight leading-tight text-gray-700">
+                        Your Gallery, <br><span class="gradient-text text-4xl md:text-6xl">Reimagined.</span>
+                    </h2>
+                    <p id="heroSub" class="text-lg text-gray-500 mb-10 max-w-xl leading-relaxed font-medium">
+                        The ultimate iOS tool to declutter your memories. Fast, smart, and satisfyingly simple.
+                    </p>
+                    <div class="flex justify-center lg:justify-start gap-4">
+                        <a href="#" class="bg-gray-900 text-white px-10 py-4 rounded-2xl font-bold flex items-center hover:bg-black transition shadow-lg hover:scale-105 transform text-lg">
+                            <span class="mr-2 text-2xl"></span> App Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 px-6 bg-white/40">
+            <div class="max-w-6xl mx-auto">
+                <h2 id="featureHeading" class="text-3xl font-extrabold text-center mb-16">Everything You Need</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="feature-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl mb-6">🖐️</div>
+                        <h3 id="f1Title" class="text-xl font-bold mb-3 text-gray-800">Swipe to Clean</h3>
+                        <p id="f1Desc" class="text-gray-500 text-sm leading-relaxed">Review photos one by one. Left to trash, right to keep.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl mb-6">🧠</div>
+                        <h3 id="f2Title" class="text-xl font-bold mb-3 text-gray-800">AI Smart Sort</h3>
+                        <p id="f2Desc" class="text-gray-500 text-sm leading-relaxed">Automatically sorts Screenshots and Memes for review.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-2xl mb-6">👯</div>
+                        <h3 id="f3Title" class="text-xl font-bold mb-3 text-gray-800">Similar Photos</h3>
+                        <p id="f3Desc" class="text-gray-500 text-sm leading-relaxed">Find and remove identical bursts, keeping only the best.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl mb-6">📹</div>
+                        <h3 id="f4Title" class="text-xl font-bold mb-3 text-gray-800">Video Compress</h3>
+                        <p id="f4Desc" class="text-gray-500 text-sm leading-relaxed">Shrink massive 4K videos without losing visible quality.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center text-2xl mb-6">🖼️</div>
+                        <h3 id="f5Title" class="text-xl font-bold mb-3 text-gray-800">Photo Optimizer</h3>
+                        <p id="f5Desc" class="text-gray-500 text-sm leading-relaxed">Compress large image files locally to save storage.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-[2rem] border-blue-100 bg-blue-50/30">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl mb-6">🔒</div>
+                        <h3 id="f6Title" class="text-xl font-bold mb-3 text-gray-800">100% Private</h3>
+                        <p id="f6Desc" class="text-gray-500 text-sm leading-relaxed text-blue-900/70">On-device processing. Your photos never leave your phone.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 px-6 bg-blue-600">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h2 id="reviewHeading" class="text-3xl font-extrabold mb-10">Loved by Users</h2>
+                <div class="grid md:grid-cols-2 gap-6 text-left">
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                        <p id="r1Text" class="mb-4 italic text-blue-50 leading-relaxed">"Swiping is so satisfying, I cleared 5GB in minutes."</p>
+                        <div class="font-bold text-sm text-blue-200">— Sarah K.</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                        <p id="r2Text" class="mb-4 italic text-blue-50 leading-relaxed">"The AI sorting is a lifesaver for my screenshots."</p>
+                        <div class="font-bold text-sm text-blue-200">— James Chen</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-10 bg-white border-t border-gray-100 text-center px-6">
+        <span id="contactText" class="text-gray-500 font-medium mr-2 text-sm">Questions? Contact us:</span>
+        <a href="mailto:oraswipe@outlook.com" class="text-blue-600 font-bold hover:underline text-sm">oraswipe@outlook.com</a>
+        <div class="mt-2 text-gray-400 text-[10px]">© 2026 OraSwipe. All rights reserved.</div>
+    </footer>
+
+    <script>
+        function runAnimation() {
+            const phone = document.getElementById('phoneBox');
+            const storage = document.getElementById('storageVal');
+            phone.classList.remove('animating');
+            storage.innerText = "124 GB";
+            setTimeout(() => {
+                phone.classList.add('animating');
+                let count = 124;
+                const timer = setInterval(() => {
+                    count--;
+                    storage.innerText = count + " GB";
+                    if(count <= 82) clearInterval(timer);
+                }, 20);
+            }, 1000);
+        }
+        setInterval(runAnimation, 5000);
+        runAnimation();
+
+        const content = {
+            en: {
+                langBtn: "中文",
+                heroTitle: "Your Gallery, <br><span class='gradient-text text-4xl md:text-6xl'>Reimagined.</span>",
+                heroSub: "The ultimate iOS tool to declutter your memories. Fast, smart, and satisfyingly simple.",
+                featureHeading: "Everything You Need",
+                f1Title: "Swipe to Clean", f1Desc: "Review photos one by one. Left to trash, right to keep.",
+                f2Title: "AI Smart Sort", f2Desc: "Automatically sorts Screenshots and Memes for review.",
+                f3Title: "Similar Photos", f3Desc: "Find and remove identical bursts, keeping only the best.",
+                f4Title: "Video Compress", f4Desc: "Shrink massive 4K videos without losing visible quality.",
+                f5Title: "Photo Optimizer", f5Desc: "Compress large image files locally to save storage.",
+                f6Title: "100% Private", f6Desc: "On-device processing. Your photos never leave your phone.",
+                reviewHeading: "Loved by Users",
+                r1Text: '"Swiping is so satisfying, I cleared 5GB in minutes."',
+                r2Text: '"The AI sorting is a lifesaver for my screenshots."',
+                contactText: "Questions? Contact us:"
+            },
+            zh: {
+                langBtn: "English",
+                heroTitle: "让你的相册，<br><span class='gradient-text text-4xl md:text-6xl'>焕然一新。</span>",
+                heroSub: "极致高效的 iOS 相册清理工具。快速、智能，让整理变得简单有趣。",
+                featureHeading: "OraSwipe 核心功能",
+                f1Title: "滑动清理", f1Desc: "逐一检视照片，左滑丢弃，右滑保留。极具爽快感。",
+                f2Title: "AI 智能分类", f2Desc: "AI 自动识别截屏和表情包，方便批量处理。",
+                f3Title: "清理相似照片", f3Desc: "精准找出连拍或相似照片，只为你保留最精彩的一张。",
+                f4Title: "视频压缩", f4Desc: "在不损失画质的前提下压缩 4K 视频，最高节省 80% 空间。",
+                f5Title: "照片压缩", f5Desc: "本地优化大尺寸图像，方便分享并释放手机存储。",
+                f6Title: "100% 隐私安全", f6Desc: "所有操作均在本地运行。照片永远不会离开手机。",
+                reviewHeading: "用户好评",
+                r1Text: "“滑动清理操作太解压了，几分钟就清理了 5GB 空间。”",
+                r2Text: "“AI 分类简直是我那几千张截屏的救星。”",
+                contactText: "有任何疑问？欢迎联系："
+            }
+        };
+
+        let currentLang = 'en';
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            const c = content[currentLang];
+            document.getElementById('langBtn').innerText = c.langBtn;
+            document.getElementById('heroTitle').innerHTML = c.heroTitle;
+            document.getElementById('heroSub').innerText = c.heroSub;
+            document.getElementById('featureHeading').innerText = c.featureHeading;
+            document.getElementById('f1Title').innerText = c.f1Title; document.getElementById('f1Desc').innerText = c.f1Desc;
+            document.getElementById('f2Title').innerText = c.f2Title; document.getElementById('f2Desc').innerText = c.f2Desc;
+            document.getElementById('f3Title').innerText = c.f3Title; document.getElementById('f3Desc').innerText = c.f3Desc;
+            document.getElementById('f4Title').innerText = c.f4Title; document.getElementById('f4Desc').innerText = c.f4Desc;
+            document.getElementById('f5Title').innerText = c.f5Title; document.getElementById('f5Desc').innerText = c.f5Desc;
+            document.getElementById('f6Title').innerText = c.f6Title; document.getElementById('f6Desc').innerText = c.f6Desc;
+            document.getElementById('reviewHeading').innerText = c.reviewHeading;
+            document.getElementById('r1Text').innerText = c.r1Text;
+            document.getElementById('r2Text').innerText = c.r2Text;
+            document.getElementById('contactText').innerText = c.contactText;
+        }
+    </script>
+</body>
+</html>
